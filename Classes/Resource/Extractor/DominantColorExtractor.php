@@ -15,8 +15,10 @@ namespace MiniFranske\LazyLoadPlaceholder\Resource\Extractor;
  */
 
 use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\FileType;
 use TYPO3\CMS\Core\Resource\Index\ExtractorInterface;
 use ColorThief\ColorThief;
+use ColorThief\Exception\Exception as ColorThiefException;
 
 /**
  * Class DominantColorExtractor
@@ -29,7 +31,7 @@ class DominantColorExtractor implements ExtractorInterface
      */
     public function getFileTypeRestrictions()
     {
-        return [File::FILETYPE_IMAGE];
+        return [FileType::IMAGE->value];
     }
 
     /**
@@ -73,9 +75,13 @@ class DominantColorExtractor implements ExtractorInterface
     public function extractMetaData(File $file, array $previousExtractedData = [])
     {
         $metaData = [];
-        $color = ColorThief::getColor($file->getContents());
+        try {
+            $color = ColorThief::getColor($file->getContents());
+        } catch (ColorThiefException $exception) {
+            return $metaData;
+        }
         if ($color) {
-            $metaData['dominant_color'] = '#' . dechex($color[0]) . dechex($color[1]) . dechex($color[2]);
+            $metaData['dominant_color'] = sprintf('#%02x%02x%02x', $color[0], $color[1], $color[2]);
         }
         return $metaData;
     }

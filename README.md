@@ -13,3 +13,4 @@ Features:
 
 This extension is inspired by the blog [Dominant Colors for Lazy-Loading Images](https://manu.ninja/dominant-colors-for-lazy-loading-images) and uses [ksubileau/color-thief-php](https://github.com/ksubileau/color-thief-php) to detect the dominant color of the image.
 
+For classic TYPO3 installations without Composer autoloading, `ksubileau/color-thief-php` is bundled in `Resources/Private/PHP/color-thief-php`.

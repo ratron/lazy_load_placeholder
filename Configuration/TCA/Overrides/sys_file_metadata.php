@@ -1,5 +1,5 @@
 <?php
-defined('TYPO3_MODE') || die('Access denied');
+defined('TYPO3') || die('Access denied');
 
 $additionalColumns = [
     'dominant_color' => [
@@ -22,6 +22,6 @@ $additionalColumns = [
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes(
     'sys_file_metadata',
     'dominant_color',
-    TYPO3\CMS\Core\Resource\File::FILETYPE_IMAGE,
+    (string)\TYPO3\CMS\Core\Resource\FileType::IMAGE->value,
     'after:source'
 );

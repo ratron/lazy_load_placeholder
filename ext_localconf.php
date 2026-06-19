@@ -1,6 +1,7 @@
 <?php
-defined('TYPO3_MODE') || die('Access denied');
+defined('TYPO3') || die('Access denied');
 
-\TYPO3\CMS\Core\Resource\Index\ExtractorRegistry::getInstance()->registerExtractionService(
-    \MiniFranske\LazyLoadPlaceholder\Resource\Extractor\DominantColorExtractor::class
+require_once \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath(
+    'lazy_load_placeholder',
+    'Resources/Private/PHP/color-thief-php/autoload.php'
 );

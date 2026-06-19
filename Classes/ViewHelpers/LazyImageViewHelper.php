@@ -51,7 +51,7 @@ class LazyImageViewHelper extends AbstractTagBasedViewHelper
     /**
      * @param \TYPO3\CMS\Extbase\Service\ImageService $imageService
      */
-    public function injectImageService(\TYPO3\CMS\Extbase\Service\ImageService $imageService)
+    public function injectImageService(\TYPO3\CMS\Extbase\Service\ImageService $imageService): void
     {
         $this->imageService = $imageService;
     }
@@ -59,7 +59,7 @@ class LazyImageViewHelper extends AbstractTagBasedViewHelper
     /**
      * @param Base64ImageService $base64ImageService
      */
-    public function injectBase64ImageService(Base64ImageService $base64ImageService)
+    public function injectBase64ImageService(Base64ImageService $base64ImageService): void
     {
         $this->base64ImageService = $base64ImageService;
     }
@@ -69,11 +69,9 @@ class LazyImageViewHelper extends AbstractTagBasedViewHelper
      *
      * @return void
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         parent::initializeArguments();
-        $this->registerUniversalTagAttributes();
-        $this->registerTagAttribute('alt', 'string', 'Specifies an alternate text for an image', false);
 
         $this->registerArgument('src', 'string', 'a path to a file, a combined FAL identifier or an uid (int). If $treatIdAsReference is set, the integer is considered the uid of the sys_file_reference record. If you already got a FAL object, consider using the $image parameter instead');
         $this->registerArgument('treatIdAsReference', 'bool', 'given src argument is a sys_file_reference record');
@@ -100,7 +98,7 @@ class LazyImageViewHelper extends AbstractTagBasedViewHelper
      * @throws \TYPO3Fluid\Fluid\Core\ViewHelper\Exception
      * @return string Rendered tag
      */
-    public function render()
+    public function render(): string
     {
         if ((is_null($this->arguments['src']) && is_null($this->arguments['image'])) || (!is_null($this->arguments['src']) && !is_null($this->arguments['image']))) {
             throw new \TYPO3Fluid\Fluid\Core\ViewHelper\Exception('You must either specify a string src or a File object.', 1382284106);
@@ -119,7 +117,7 @@ class LazyImageViewHelper extends AbstractTagBasedViewHelper
                 $crop = $cropVariantCollection->getCropArea($cropVariant)->makeAbsoluteBasedOnFile($image);
 
                 if (!$cropVariantCollection->getFocusArea($cropVariant)->isEmpty()) {
-                    $this->tag->addAttribute('data-focus-area', $cropVariantCollection->getFocusArea($cropVariant)->makeAbsoluteBasedOnFile($image));
+                    $this->tag->addAttribute('data-focus-area', (string)$cropVariantCollection->getFocusArea($cropVariant)->makeAbsoluteBasedOnFile($image));
                 }
             } else {
                 $crop = $cropString;
@@ -145,15 +143,16 @@ class LazyImageViewHelper extends AbstractTagBasedViewHelper
             $this->tag->addAttribute('width', $processedImage->getProperty('width'));
             $this->tag->addAttribute('height', $processedImage->getProperty('height'));
 
-            $alt = $image->getProperty('alternative');
-            $title = $image->getProperty('title');
-
-            // The alt-attribute is mandatory to have valid html-code, therefore add it even if it is empty
-            if (empty($this->arguments['alt'])) {
-                $this->tag->addAttribute('alt', $alt);
+            if (isset($this->additionalArguments['alt']) && $this->additionalArguments['alt'] === '') {
+                $this->tag->addAttribute('alt', '');
+            } elseif (!isset($this->additionalArguments['alt'])) {
+                $this->tag->addAttribute('alt', $image->getProperty('alternative') ?? '');
             }
-            if (empty($this->arguments['title']) && $title) {
-                $this->tag->addAttribute('title', $title);
+            if (!isset($this->additionalArguments['title'])) {
+                $title = trim((string)($image->hasProperty('title') ? $image->getProperty('title') : ''));
+                if ($title !== '') {
+                    $this->tag->addAttribute('title', $title);
+                }
             }
         } catch (ResourceDoesNotExistException $e) {
             // thrown if file does not exist
